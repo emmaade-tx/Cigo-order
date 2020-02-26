@@ -14,8 +14,12 @@ class m200226_163555_create_order_types_table extends Migration
     public function safeUp()
     {
         $this->createTable('{{%order_types}}', [
-            'id' => $this->primaryKey(),
-            'name' => Schema::TYPE_STRING . ' NOT NULL',
+            'id' => $this->primaryKey()->unsigned(),
+            'name' =>$this->string(45)->notNull(),
+        ]);
+
+        $this->batchInsert('order_types', ['name'], [
+            ['Delivery'], ['Servicing,'], ['Installation']
         ]);
     }
 
