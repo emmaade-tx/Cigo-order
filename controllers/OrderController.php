@@ -5,6 +5,8 @@ namespace app\controllers;
 use Yii;
 use app\models\Order;
 use app\models\Status;
+use app\models\Country;
+use app\models\OrderType;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -27,6 +29,7 @@ class OrderController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
+                    'geocoder' => ['GET']
                 ],
             ],
         ];
@@ -42,22 +45,37 @@ class OrderController extends Controller
             'query' => Order::find(),
         ]);
 
-        $geocoder = new \Geocodio\Geocodio();
+        
 
-        $geocoder->setApiKey('43d28b79857ee554d2b779518e57242ebee75d9');
-
-        $response = $geocoder->geocode('1109 N Highland St, Arlington, VA');
-        // var_dump($response->results[0]->location); die;
-
-        $orders = Order::find()->with('orderType', 'country', 'status')->all();
+        // $orders = Order::find()->with('orderType', 'country', 'status')->all();
+        $orders = Order::find()->all();
+        $orderTypes = OrderType::find()->all();
         $statuses = Status::find()->all();
+        $countries = Country::find()->all();
 
-            // var_dump($orders); die;
+            // var_dump($countries); die;
         // return $this->render('index', [
         //     'dataProvider' => $dataProvider,
         // ]);
 
-        return $this->render('index', ['orders' => $orders, 'statuses' => $statuses, 'dataProvider' => $dataProvider]);
+        return $this->render('index', ['orderTypes' => $orderTypes, 'countries' => $countries, 'orders' => $orders, 'statuses' => $statuses, 'dataProvider' => $dataProvider]);
+    }
+
+    public function actionGeocoder($city, $state, $address, $country)
+    {
+        try {
+            $fullAddress = $address . " " . $city . " " . $state . " " . $country;
+            $geocoder = new \Geocodio\Geocodio();
+            $geocoder->setApiKey('43d28b79857ee554d2b779518e57242ebee75d9');
+            $response = $geocoder->geocode($fullAddress);
+            
+            echo json_encode($response->results[0]->location);
+          }
+          //catch exception
+          catch(\Exception $e) {
+              echo json_encode($e->getMessage());
+          }
+        
     }
 
     /**
@@ -82,13 +100,46 @@ class OrderController extends Controller
     {
         $model = new Order();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
+        // var_dump(Yii::$app->request->post()); die;
 
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        $data = Yii::$app->request->post();
+        $postData = [];
+        // var_dump($newData); die;
+        // var_dump(Yii::$app->request->post()); die;
+        // $model->load(Yii::$app->request->post())
+        // $model->first_name = $data['first_name'];
+        // $model->first_name = $data['last_name'];
+        // $model->first_name = $data['email'];
+
+        $postData['first_name'] = $data['first_name'];
+        $postData['last_name'] = $data['last_name'];
+        $postData['email'] = $data['email'];
+        $postData['order_type_id'] = (int) $data['order_type_id'];
+        $postData['scheduled_date'] = $data['scheduled_date'];
+        $postData['phone_number'] = $data['phone_number'];
+        $postData['order_value'] = $data['order_value'];
+        $postData['address'] = $data['address'];
+        $postData['city'] = $data['city'];
+        $postData['zip_code'] = $data['zip_code'];
+        $postData['state'] = $data['state'];
+        $postData['country_id'] = (int) $data['order_type_id'];
+        $postData['status_id'] = 1;
+        $postData['lat'] = $data['lat'];
+        $postData['lng'] = $data['lng'];
+
+        $newData = [];
+        $newData['_csrf'] = $data['_csrf'];
+        $newData['Order'] = $postData;
+        // var_dump($newData); die;
+        // var_dump($model->save());
+        if ($model->load($newData) && $model->save()) {
+            // Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            echo json_encode(["success" => $model]);
+            // return ["success" => "Data saved succesfully"];
+            // return $this->redirect(['view', 'id' => $model->id]);
+        } else {
+            echo ["error" => $model];
+        }
     }
 
     /**

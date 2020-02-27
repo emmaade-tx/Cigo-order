@@ -5,7 +5,7 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "orders".
+ * This is the model class for table "tests".
  *
  * @property int $id
  * @property string $first_name
@@ -28,14 +28,14 @@ use Yii;
  * @property OrderType $orderType
  * @property Status $status
  */
-class Order extends \yii\db\ActiveRecord
+class Test extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'orders';
+        return 'tests';
     }
 
     /**
@@ -44,7 +44,7 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['first_name', 'phone_number', 'order_type_id', 'scheduled_date', 'address', 'city', 'state', 'country_id', 'lat', 'lng'], 'required'],
+            [['first_name', 'phone_number', 'order_type_id', 'scheduled_date', 'address', 'city', 'state', 'status_id', 'country_id', 'lat', 'lng'], 'required'],
             [['order_type_id', 'status_id', 'country_id'], 'integer'],
             [['first_name', 'last_name', 'email'], 'string', 'max' => 80],
             [['phone_number', 'order_value', 'scheduled_date', 'address', 'city', 'state', 'zip_code', 'lat', 'lng'], 'string', 'max' => 45],
@@ -82,7 +82,7 @@ class Order extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Country]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getCountry()
     {
@@ -92,7 +92,7 @@ class Order extends \yii\db\ActiveRecord
     /**
      * Gets query for [[OrderType]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getOrderType()
     {
@@ -102,10 +102,19 @@ class Order extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Status]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getStatus()
     {
         return $this->hasOne(Status::className(), ['id' => 'status_id']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return TestsQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new TestsQuery(get_called_class());
     }
 }

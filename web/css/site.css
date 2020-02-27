@@ -113,5 +113,3 @@ a.desc:after {
 .nav > li > form > button.logout:focus {
     outline: none;
 }
-
-#mapid { height: 300px; }
