@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * Handles the creation of table `{{%orders}}`.
  */
-class m200226_164324_create_orders_table extends Migration
+class m200227_184324_create_orders_table extends Migration
 {
     /**
      * {@inheritdoc}
@@ -14,7 +14,6 @@ class m200226_164324_create_orders_table extends Migration
     {
         $this->createTable('{{%orders}}', [
             'id' => $this->primaryKey()->unsigned(),
-            'name' => $this->string(45)->notNull(),
             'first_name' => $this->string(80)->notNull(),
             'last_name' => $this->string(80),
             'email' => $this->string(80),
@@ -25,6 +24,7 @@ class m200226_164324_create_orders_table extends Migration
             'address' => $this->string(45)->notNull(),
             'city' => $this->string(45)->notNull(),
             'state' => $this->string(45)->notNull(),
+            'status_id' => $this->integer()->unsigned()->notNull(),
             'zip_code' =>$this->string(45),
             'country_id' => $this->integer()->unsigned()->notNull(),
             'lat' => $this->string(45)->notNull(),
@@ -32,7 +32,8 @@ class m200226_164324_create_orders_table extends Migration
         ]);
 
         $this->addForeignKey('fk_orders_order_type_id_order_types', 'orders', 'order_type_id', 'order_types', 'id');
-        $this->addForeignKey('fk_orders_country_id_country', 'orders', 'country_id', 'countries', 'id');
+        $this->addForeignKey('fk_orders_country_id_countries', 'orders', 'country_id', 'countries', 'id');
+        $this->addForeignKey('fk_orders_status_id_statuses', 'orders', 'status_id', 'statuses', 'id');
     }
 
     /**
@@ -41,7 +42,8 @@ class m200226_164324_create_orders_table extends Migration
     public function safeDown()
     {
         $this->dropForeignKey('fk_orders_order_type_id_order_types', 'orders');
-        $this->dropForeignKey('fk_orders_country_id_country', 'orders');
+        $this->dropForeignKey('fk_orders_countries_id_country', 'orders');
+        $this->dropForeignKey('fk_orders_status_id_statuses', 'orders');
         $this->dropTable('{{%orders}}');
     }
 }

@@ -5,21 +5,21 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "order_types".
+ * This is the model class for table "statuses".
  *
  * @property int $id
  * @property string $name
  *
  * @property Order[] $orders
  */
-class OrderType extends \yii\db\ActiveRecord
+class Status extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'order_types';
+        return 'statuses';
     }
 
     /**
@@ -51,6 +51,6 @@ class OrderType extends \yii\db\ActiveRecord
      */
     public function getOrders()
     {
-        return $this->hasMany(Order::className(), ['order_type_id' => 'id']);
+        return $this->hasMany(Order::className(), ['status_id' => 'id']);
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
 use yii\db\Migration;
-use yii\db\Schema;
 
 /**
  * Handles the creation of table `{{%order_types}}`.
@@ -19,7 +18,7 @@ class m200226_163555_create_order_types_table extends Migration
         ]);
 
         $this->batchInsert('order_types', ['name'], [
-            ['Delivery'], ['Servicing,'], ['Installation']
+            ['Delivery'], ['Servicing'], ['Installation']
         ]);
     }
 
