@@ -9,6 +9,8 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\geocodio;
+
 
 /**
  * OrderController implements the CRUD actions for Order model.
@@ -39,6 +41,13 @@ class OrderController extends Controller
         $dataProvider = new ActiveDataProvider([
             'query' => Order::find(),
         ]);
+
+        $geocoder = new \Geocodio\Geocodio();
+
+        $geocoder->setApiKey('43d28b79857ee554d2b779518e57242ebee75d9');
+
+        $response = $geocoder->geocode('1109 N Highland St, Arlington, VA');
+        // var_dump($response->results[0]->location); die;
 
         $orders = Order::find()->with('orderType', 'country', 'status')->all();
         $statuses = Status::find()->all();
