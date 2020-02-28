@@ -29,7 +29,8 @@ class OrderController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'delete' => ['POST'],
-                    'geocoder' => ['GET']
+                    'geocoder' => ['GET'],
+                    'getorders' => ['GET']
                 ],
             ],
         ];
@@ -41,13 +42,6 @@ class OrderController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Order::find(),
-        ]);
-
-        
-
-        // $orders = Order::find()->with('orderType', 'country', 'status')->all();
         $orders = Order::find()->all();
         $orderTypes = OrderType::find()->all();
         $statuses = Status::find()->all();
@@ -58,9 +52,18 @@ class OrderController extends Controller
         //     'dataProvider' => $dataProvider,
         // ]);
 
-        return $this->render('index', ['orderTypes' => $orderTypes, 'countries' => $countries, 'orders' => $orders, 'statuses' => $statuses, 'dataProvider' => $dataProvider]);
+        return $this->render('index', ['orderTypes' => $orderTypes, 'countries' => $countries, 'orders' => $orders, 'statuses' => $statuses]);
     }
 
+    /**
+     * Get latitude and longitude.
+     * @param string $city
+     * @param string $state
+     * @param string $address
+     * @param string $country
+     * 
+     * @return obj
+     */
     public function actionGeocoder($city, $state, $address, $country)
     {
         try {
@@ -79,6 +82,18 @@ class OrderController extends Controller
     }
 
     /**
+     * Get orders model.
+     * @return mixed
+     */
+    public function actionGetorders() {
+        $orders = Order::find()->all();
+        if ($orders) {
+            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return $orders;
+        }
+    }
+
+    /**
      * Displays a single Order model.
      * @param integer $id
      * @return mixed
@@ -86,9 +101,12 @@ class OrderController extends Controller
      */
     public function actionView($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        $order = $this->findModel($id);
+        if ($order) {
+            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return $order;
+        }
+        
     }
 
     /**
@@ -100,16 +118,8 @@ class OrderController extends Controller
     {
         $model = new Order();
 
-        // var_dump(Yii::$app->request->post()); die;
-
         $data = Yii::$app->request->post();
         $postData = [];
-        // var_dump($newData); die;
-        // var_dump(Yii::$app->request->post()); die;
-        // $model->load(Yii::$app->request->post())
-        // $model->first_name = $data['first_name'];
-        // $model->first_name = $data['last_name'];
-        // $model->first_name = $data['email'];
 
         $postData['first_name'] = $data['first_name'];
         $postData['last_name'] = $data['last_name'];
@@ -152,14 +162,29 @@ class OrderController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        // var_dump($model); die;
+        // var_dump(Yii::$app->request->post()); die;
+        $data = Yii::$app->request->post();
+        // var_dump($data); die;
+        $postData = [];
+        $postData['status_id'] = $data['statusId'];;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        $newData = [];
+        $newData['_csrf'] = $data['_csrf'];
+        $newData['Order'] = $postData;
+
+
+        if ($model->load($newData) && $model->save()) {
+
+            echo json_encode(["success" => $model]);
+            // return $this->redirect(['view', 'id' => $model->id]);
+        } else {
+            echo ["error" => $model];
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        // return $this->render('update', [
+        //     'model' => $model,
+        // ]);
     }
 
     /**
@@ -171,9 +196,15 @@ class OrderController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $deleteResponse = $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+        if ($deleteResponse) {
+            echo true;
+        } else {
+            echo false;
+        }
+
+        // return $this->redirect(['index']);
     }
 
     /**

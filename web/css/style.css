@@ -121,8 +121,8 @@ float: right;
 padding-top: 1em;
 }
 .order-select {
-background-color: #000 !important;
-color: #fff !important;
+  background-color: #000 !important;
+  color: #fff !important;
 }
 /* Form CSS*/
 .form-control:active, .form-control:focus {
@@ -234,3 +234,12 @@ vertical-align: initial;
 }
 
 #mapid { height: 880px; }
+
+.deleteOrder {
+  color: red;
+  cursor: pointer;
+}
+
+.viewOrder {
+  cursor: pointer;
+}

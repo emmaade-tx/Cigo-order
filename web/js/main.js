@@ -1,6 +1,8 @@
 $(function () {
   'use strict'
-
+  localStorage.removeItem('lng');
+  localStorage.removeItem('lat');
+  showMap();
   $('[data-toggle="offcanvas"]').on('click', function () {
     $('.offcanvas-collapse').toggleClass('open')
   })
@@ -33,6 +35,98 @@ $(function () {
         }
       });
   }
+
+  $('.deleteOrder').on('click', function() {
+      if (confirm("Are you sure you want to delete this order?")) {
+        var orderId = $(this).attr('order-id');
+        var csrfToken = $('#csrf').val();
+        var data = {
+          orderId: orderId,
+          _csrf: csrfToken
+        }
+        $.ajax({
+          type: "POST",
+          url: `/order/delete/${orderId}`,
+          data: data,
+          success: function (response) {
+             //do something
+              console.log(response);
+              showMap();
+              alert("Order Successfully deleted");
+              // var obj = jQuery.parseJSON(response);
+            
+          },
+          error: function (errormessage) {
+    
+              //do something else
+              console.log(errormessage);
+              var obj = jQuery.parseJSON(errormessage);
+              // alert("not working");
+    
+          }
+        });
+      }
+  })
+
+  $('.order-select').on('change', function() {
+    var orderId = $(this).attr('order-id');
+    var csrfToken = $('#csrf').val();
+    var statusId =$(this).val()
+    var data = {
+      orderId: orderId,
+      statusId: statusId,
+      _csrf: csrfToken
+    }
+    console.log(data)
+    $.ajax({
+      type: "PUT",
+      url: `/order/update/${orderId}`,
+      data: data,
+      // contentType: "application/json; charset=utf-8",
+      // dataType: "json",
+      success: function (response) {
+        //do something
+          
+          // var obj = jQuery.parseJSON(response);
+          // console.log(obj)
+          alert("Order Successfully updated");
+      },
+      error: function (errormessage) {
+
+          //do something else
+          // var obj = jQuery.parseJSON(response);
+          // console.log(obj);
+          alert("Something went wrong");
+          // alert("not working");
+      }
+    });
+  });
+
+  $('.viewOrder').on('click', function() {
+    var orderId = $(this).attr('order-id');
+    $.ajax({
+      type: "GET",
+      url: `/order/view/${orderId}`,
+      // contentType: "application/json; charset=utf-8",
+      // dataType: "json",
+      success: function (response) {
+        //do something
+          
+          // var obj = jQuery.parseJSON(response);
+          console.log(response)
+          // alert("Order Successfully updated");
+      },
+      error: function (errormessage) {
+
+          //do something else
+          // var obj = jQuery.parseJSON(response);
+          console.log(errormessage);
+          alert("Something went wrong");
+          // alert("not working");
+
+      }
+    });
+  })
 
   $("#address").on('change', function() {
       var address = $(this).val();
@@ -93,6 +187,37 @@ $(function () {
       success: function (response) {
          //do something
           console.log(response);
+          localStorage.removeItem('lng');
+          localStorage.removeItem('lat');
+          showMap();
+          var obj = jQuery.parseJSON(response);
+          alert("Order Successfully Submitted");
+        
+      },
+      error: function (errormessage) {
+
+          //do something else
+          console.log(errormessage);
+          var obj = jQuery.parseJSON(errormessage);
+          // alert("not working");
+
+      }
+    });
+  });
+
+  function fetchOrder(callback) {
+    $.ajax({
+      type: "GET",
+      url: "/order/getorders",
+      // contentType: "application/json; charset=utf-8",
+      // dataType: "json",
+      success: function (response) {
+        //do something
+          
+          // var obj = jQuery.parseJSON (response);
+          // console.log(response);
+
+          return callback(response);
         
       },
       error: function (errormessage) {
@@ -103,9 +228,12 @@ $(function () {
 
       }
     });
-});
+  }
 
-  var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+  function showMap() {
+    
+    // console.log(orders);
+    var mymap = L.map('mapid').setView([51.505, -0.09], 13);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=sk.eyJ1IjoiZGVtbzAwNCIsImEiOiJjazc0cHJncnUwNjh3M3Fua3Q1dnhzc2J3In0.2rcqD0u3Td9cUe2FWKGfrQ', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -151,45 +279,41 @@ $(function () {
         popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
     });
 
-    
-    
-
-    
-    
-    L.marker([51.5, -0.09], {icon: deliveredIcon}).addTo(mymap);
-    L.marker([51.509, -0.08], {icon: onRouteIcon}).addTo(mymap);
-    L.marker([51.51, -0.047], {icon: failedDeliveryIcon}).addTo(mymap);
-
-    L.marker([51.503, -0.06], {icon: pendingIcon}).addTo(mymap);
-    L.marker([51.51, -0.047], {icon: assignedIcon}).addTo(mymap);
-    var marker = L.marker([localStorage.getItem('lat'), localStorage.getItem('lng')]).addTo(mymap);
-
-    // var circle = L.circle([51.508, -0.11], {
-    //     color: 'red',
-    //     fillColor: '#f03',
-    //     fillOpacity: 0.5,
-    //     radius: 500
-    // }).addTo(mymap);
-
-    // var polygon = L.polygon([
-    //     [51.509, -0.08],
-    //     [51.503, -0.06],
-    //     [51.51, -0.047]
-    // ]).addTo(mymap);
-
-    // marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
-    // circle.bindPopup("I am a circle.");
-    // polygon.bindPopup("I am a polygon.");
-
-    var popup = L.popup();
-
-    function onMapClick(e) {
-        popup
-            .setLatLng(e.latlng)
-            .setContent("You clicked the map at " + e.latlng.toString())
-            .openOn(mymap);
+    var statuses = {
+      1: pendingIcon,
+      2: assignedIcon,
+      3: onRouteIcon,
+      4: deliveredIcon,
+      5: failedDeliveryIcon
     }
 
+    // console.log(statuses.1);
+
+   fetchOrder(function (response) {
+    if (response) {
+      response.forEach(function(order) {
+        L.marker([order.lat, order.lng], {icon: statuses[order.status_id]}).addTo(mymap);
+      })
+    }
+   });
+
+   if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
+     var marker = L.marker([localStorage.getItem('lat'), localStorage.getItem('lng')]).addTo(mymap);
+
+     marker.bindPopup("This is your location based on your address.").openPopup();
+   }
+
+    var popup = L.popup();
     mymap.on('click', onMapClick);
+  }
+
+  function onMapClick(e) {
+      popup
+          .setLatLng(e.latlng)
+          .setContent("You clicked the map at " + e.latlng.toString())
+          .openOn(mymap);
+  }
+
+  
 })
 
