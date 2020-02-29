@@ -122,8 +122,8 @@
             <button type="button" class="btn btn-sm btn-gray-outline">Preview Location</button>
         </div>
         <div class="col-6 col-lg-6 text-right">
-            <button type="button" class="btn btn-sm btn-gray">Cancel</button>
-            <button id="submitButton" type="submit" class="btn btn-sm btn-purple">Submit</button>
+            <button disabled id="submitButton" type="submit" class="btn btn-sm btn-purple">Submit</button>
+            <input id="reset" type="reset" value="Cancel"  class="btn btn-sm btn-gray"/>
         </div>
     </div>
     </div>
