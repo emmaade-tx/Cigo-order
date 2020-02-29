@@ -2,13 +2,169 @@ $(function () {
   'use strict'
   localStorage.removeItem('lng');
   localStorage.removeItem('lat');
+  var mymap = L.map('mapid').setView([51.505, -0.09], 13);
   showMap();
+  // showExistingTable();
+  // $('#alert').hide();
   $('[data-toggle="offcanvas"]').on('click', function () {
     $('.offcanvas-collapse').toggleClass('open')
   })
   $(".dropdown-menu li").click(function(){
 	  var selText = $(this).text();
 	  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  });
+
+  var existingOrdertable = $('#orderTable').DataTable( {
+    'processing': true,
+    'language': {
+        'loadingRecords': '&nbsp;',
+        'processing': 'Loading...'
+    },
+    "ajax": "/order/datatableorders",
+    "columns": [
+      { "data": "first_name" },
+      { "data": "last_name" },
+      { "data": "scheduled_date" },
+      { "data": null },
+      { "data": null }
+    ],
+    "columnDefs": [{
+      "targets": -2,
+      "render": function (data, type, row) {        
+        var select = `<select _csrf=${data._csrf} order-id=${data.id} class="form-control order-select"> <option ${data.status_id === 1 ? "selected" : ""} value="1">Pending </option> <option ${data.status_id === 2 ? "selected" : ""} value="2">Assigned </option> <option ${data.status_id === 3 ? "selected" : ""} value="3">On Route </option> <option ${data.status_id === 4 ? "selected" : ""} value="4">Done </option> <option ${data.status_id === 5 ? "selected" : ""} value="5">Cancelled </option> </select>`;           
+        return select;
+      }
+    },
+    {
+      "targets": -1,
+      "render": function (data, type, row) {        
+        var close = `<span ${((data.status_id === 1) || (data.status_id === 2)) ?  "" : "style='opacity: .19;'" }  status-id=${data.status_id} _csrf=${data._csrf} order-id=${data.id} class="fa fa-close red deleteOrder cursor-pointer"></span>`;
+        return close;
+      }
+    },
+    { className: "cursor-pointer view-order", "targets": [ 0 ] },
+    { className: "cursor-pointer view-order", "targets": [ 1 ] },
+    { className: "cursor-pointer view-order", "targets": [ 2 ] }
+  ]
+  });
+
+  $('#orderTable tbody').on('click', '.view-order',  function () {
+    var table = $('#orderTable').DataTable();
+    var data = table.row( this ).data();
+    $('#detailModal').addClass('show');
+    $('#detailModal').show();
+    $('.bg-light').addClass('modal-open');
+    $('#lightContent').addClass('modal-backdrop fade show')
+    console.log(data);
+      showMap(data);
+      showOrderDetail(data);
+  });
+  $('.closeDetailModal').on('click', function () {
+    $('#detailModal').removeClass('show');
+    $('.bg-light').removeClass('modal-open');
+    $('#lightContent').removeClass('modal-backdrop fade show')
+    $('#detailModal').hide();
+  })
+  
+  
+
+  $('#orderTable tbody').on('change', '.order-select', function () {
+    var orderId = $(this).attr('order-id');
+    var csrfToken = $(this).attr('_csrf');
+    var statusId =$(this).val()
+    var data = {
+      orderId: orderId,
+      statusId: statusId,
+      _csrf: csrfToken
+    }
+    $.ajax({
+      type: "PUT",
+      url: `/order/update/${orderId}`,
+      data: data,
+      
+      success: function (response) {
+        if (response === "error") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            showConfirmButton: false,
+            text: "Something went wrong",
+            timer: 2000
+          })
+        } else {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            showConfirmButton: false,
+            text: "Order Successfully updated",
+            timer: 2000
+          })
+
+          showMap(response)
+          existingOrdertable.ajax.reload();
+        }
+      },
+      error: function (errormessage) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            showConfirmButton: false,
+            text: "Something went wrong",
+            timer: 1500
+          })
+      }
+    });
+  });
+
+  $('#orderTable tbody').on('click', '.deleteOrder', function () {
+    var statusId = $(this).attr('status-id');
+    if (statusId == 2 || statusId == 1) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#7858c5',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.value) {
+          var orderId = $(this).attr('order-id');
+          var csrfToken = $(this).attr('_csrf');
+          var data = {
+            orderId: orderId,
+            _csrf: csrfToken
+          }
+          $.ajax({
+            type: "POST",
+            url: `/order/delete/${orderId}`,
+            data: data,
+            success: function (response) {
+               //do something
+                console.log(response);
+                showMap();
+                Swal.fire(
+                  'Deleted!',
+                  'Order Successfully deleted.',
+                  'success'
+                )
+                existingOrdertable.ajax.reload()
+                // var obj = jQuery.parseJSON(response);
+              
+            },
+            error: function (errormessage) {
+      
+                //do something else
+                console.log(errormessage);
+                var obj = jQuery.parseJSON(errormessage);
+                // alert("not working");
+      
+            }
+          });
+        }
+      })
+    }
+    
   });
 
   function getGeoCodeinfo(city, state, country, address) {
@@ -22,8 +178,23 @@ $(function () {
             
             var obj = jQuery.parseJSON (response);
             console.log(obj);
-            localStorage.setItem('lng', obj.lng);
-            localStorage.setItem('lat', obj.lat);
+            if (obj === "Could not geocode address. Postal code or city required.") {
+              // alert("We could not get your location, please give a right address")
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'We could not get your location, please change your address!',
+              })
+              localStorage.removeItem('lng');
+              localStorage.removeItem('lat');
+              showMap();
+            } else {
+              $('#submitButton').removeAttr("disabled");
+              localStorage.setItem('lng', obj.lng);
+              localStorage.setItem('lat', obj.lat);
+              showMap();
+            }
+            
           
         },
         error: function (errormessage) {
@@ -36,97 +207,52 @@ $(function () {
       });
   }
 
-  $('.deleteOrder').on('click', function() {
-      if (confirm("Are you sure you want to delete this order?")) {
-        var orderId = $(this).attr('order-id');
-        var csrfToken = $('#csrf').val();
-        var data = {
-          orderId: orderId,
-          _csrf: csrfToken
-        }
-        $.ajax({
-          type: "POST",
-          url: `/order/delete/${orderId}`,
-          data: data,
-          success: function (response) {
-             //do something
-              console.log(response);
-              showMap();
-              alert("Order Successfully deleted");
-              // var obj = jQuery.parseJSON(response);
-            
-          },
-          error: function (errormessage) {
-    
-              //do something else
-              console.log(errormessage);
-              var obj = jQuery.parseJSON(errormessage);
-              // alert("not working");
-    
-          }
-        });
-      }
+  $('#reset').on('click', function() {
+    localStorage.removeItem('lng')
+    localStorage.removeItem('lat')
+    showMap()
   })
 
-  $('.order-select').on('change', function() {
-    var orderId = $(this).attr('order-id');
-    var csrfToken = $('#csrf').val();
-    var statusId =$(this).val()
-    var data = {
-      orderId: orderId,
-      statusId: statusId,
-      _csrf: csrfToken
+  function showOrderDetail(response) {
+    var orderTypes = {
+      1: "Delivery",
+      2: "Servicing",
+      3: "Installation"
     }
-    console.log(data)
-    $.ajax({
-      type: "PUT",
-      url: `/order/update/${orderId}`,
-      data: data,
-      // contentType: "application/json; charset=utf-8",
-      // dataType: "json",
-      success: function (response) {
-        //do something
-          
-          // var obj = jQuery.parseJSON(response);
-          // console.log(obj)
-          alert("Order Successfully updated");
-      },
-      error: function (errormessage) {
+    var orderStatuses = {
+      1: "Pending",
+      2: "Assigned",
+      3: "On Route",
+      4: "Delivered",
+      5: "Cancelled"
+    }
 
-          //do something else
-          // var obj = jQuery.parseJSON(response);
-          // console.log(obj);
-          alert("Something went wrong");
-          // alert("not working");
-      }
-    });
-  });
+    var orderCountries = {
+      1: "Nigeria",
+      2: "Canada",
+      3: "United States",
+      4: "Mexico"
+    }
 
-  $('.viewOrder').on('click', function() {
-    var orderId = $(this).attr('order-id');
-    $.ajax({
-      type: "GET",
-      url: `/order/view/${orderId}`,
-      // contentType: "application/json; charset=utf-8",
-      // dataType: "json",
-      success: function (response) {
-        //do something
-          
-          // var obj = jQuery.parseJSON(response);
-          console.log(response)
-          // alert("Order Successfully updated");
-      },
-      error: function (errormessage) {
+    const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    })
 
-          //do something else
-          // var obj = jQuery.parseJSON(response);
-          console.log(errormessage);
-          alert("Something went wrong");
-          // alert("not working");
-
-      }
-    });
-  })
+    var orderType = orderTypes[response.order_type_id]
+    var orderStatus = orderStatuses[response.status_id]
+    var orderCountry = orderCountries[response.country_id]
+    $('#user1title').text(`${response.first_name} ${response.last_name}`)
+    $('#orderEmail').text(response.email)
+    $('#orderSchedleDate').text(response.scheduled_date)
+    $('#orderAmount').text(formatter.format(response.order_value))
+    $('#orderAddress').text(`${response.address} ${response.city} ${response.state}`)
+    $('#orderPhone').text(response.phone_number)
+    $('#orderType').text(orderType)
+    $('#orderCountry').text(orderCountry)
+    $('#orderStatus').text(orderStatus)
+  }
 
   $("#address").on('change', function() {
       var address = $(this).val();
@@ -160,7 +286,6 @@ $(function () {
   });
 
   $("#country").on('change', function() {
-    // var country = $(this).val();
     var country = $('#country option:selected').text();
     var city = $('#city').val();
     var state = $('#state').val();
@@ -176,9 +301,13 @@ $(function () {
     $.each($(this).serializeArray(), function(i, field) {
         data[field.name] = field.value;
     });
+    console.log(data);
+    if (!data.first_name || !data.order_type_id || !data.phone_number || !data.scheduled_date || !data.city || !data.state || !data.country_id) {
+      return;
+    }
     data['lng'] = localStorage.getItem('lng');
     data['lat'] = localStorage.getItem('lat');
-    // console.log(data);
+    console.log(data);
     
     $.ajax({
       type: "POST",
@@ -189,9 +318,39 @@ $(function () {
           console.log(response);
           localStorage.removeItem('lng');
           localStorage.removeItem('lat');
+          if (response === "success") {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              showConfirmButton: false,
+              text: "Your Order has been saved Succesfully",
+              timer: 2000
+            })
+            // $( '#myForm' ).each(function(){
+            //   $(this).reset();
+            // });
+            // $("#myForm")[0].reset();
+            // $("myForm").trigger("reset");
+            $(':input','#myForm').reset();
+            // $(':input','#myForm')
+            // .not(':button, :submit, :reset, :hidden')
+            // .val('')
+            // .removeAttr('checked')
+            // .removeAttr('selected');
+            existingOrdertable.ajax.reload();
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              showConfirmButton: false,
+              text: "Something went wrong, please try again later",
+              timer: 2000
+            })
+          }
+          
           showMap();
-          var obj = jQuery.parseJSON(response);
-          alert("Order Successfully Submitted");
+          // var obj = jQuery.parseJSON(response);
+          // alert("Order Successfully Submitted");
         
       },
       error: function (errormessage) {
@@ -205,7 +364,7 @@ $(function () {
     });
   });
 
-  function fetchOrder(callback) {
+  function fetchOrders(callback) {
     $.ajax({
       type: "GET",
       url: "/order/getorders",
@@ -230,10 +389,9 @@ $(function () {
     });
   }
 
-  function showMap() {
-    
-    // console.log(orders);
-    var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+  function showMap(viewOrder) {
+
+    var popup = L.popup();
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=sk.eyJ1IjoiZGVtbzAwNCIsImEiOiJjazc0cHJncnUwNjh3M3Fua3Q1dnhzc2J3In0.2rcqD0u3Td9cUe2FWKGfrQ', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -287,33 +445,44 @@ $(function () {
       5: failedDeliveryIcon
     }
 
-    // console.log(statuses.1);
-
-   fetchOrder(function (response) {
+   fetchOrders(function (response) {
     if (response) {
       response.forEach(function(order) {
         L.marker([order.lat, order.lng], {icon: statuses[order.status_id]}).addTo(mymap);
       })
     }
+     if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
+      mymap.setView([localStorage.getItem('lat'), localStorage.getItem('lng')], 13);
+     } else if (viewOrder) {
+      mymap.setView([viewOrder.lat, viewOrder.lng], 13);
+      var latlng = {lat: viewOrder.lat, lng: viewOrder.lng}
+      popup
+          .setLatLng(latlng)
+          .setContent(`Order for ${viewOrder.first_name + ' ' + viewOrder.last_name}`)
+          .openOn(mymap);
+     } else {
+      mymap.setView([response[0].lat, response[0].lng], 13);
+     }
    });
 
    if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
      var marker = L.marker([localStorage.getItem('lat'), localStorage.getItem('lng')]).addTo(mymap);
-
+    //  console.log(marker);
+     mymap.setView([localStorage.getItem('lat'), localStorage.getItem('lng')], 13);
      marker.bindPopup("This is your location based on your address.").openPopup();
    }
 
-    var popup = L.popup();
+    
     mymap.on('click', onMapClick);
-  }
 
-  function onMapClick(e) {
-      popup
-          .setLatLng(e.latlng)
-          .setContent("You clicked the map at " + e.latlng.toString())
-          .openOn(mymap);
+    function onMapClick(e) {
+      console.log(e)
+        popup
+            .setLatLng(e.latlng)
+            .setContent("You clicked the map at " + e.latlng.toString())
+            .openOn(mymap);
+    }
   }
-
   
 })
 

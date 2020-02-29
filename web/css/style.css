@@ -121,8 +121,8 @@ float: right;
 padding-top: 1em;
 }
 .order-select {
-  background-color: #000 !important;
-  color: #fff !important;
+background-color: #000 !important;
+color: #fff !important;
 }
 /* Form CSS*/
 .form-control:active, .form-control:focus {
@@ -190,6 +190,7 @@ font-size: 0.8em;
 background-color: #efefef;
 border: 1px solid #ced4da; 
 }
+/* Buttons */
 .btn:active, .btn:focus {
 box-shadow: none !important;
 }
@@ -199,6 +200,18 @@ background-color: #7858c5;
 border: 1px solid #7858c5;
 }
 .btn-purple:hover {
+color: #fff;
+background-color: #5d3ea9;
+border: 1px solid #5d3ea9;
+}
+.btn-purple-round {
+color: #fff;
+background-color: #7858c5;
+border: 1px solid #7858c5;
+padding: 0.5em 1em;
+border-radius: 2.6em;
+}
+.btn-purple-round:hover {
 color: #fff;
 background-color: #5d3ea9;
 border: 1px solid #5d3ea9;
@@ -218,28 +231,60 @@ color: #7858c5;
 background-color: #fff;
 border: 1px solid #7858c5;
 }
+.btn-purple-outline, .btn-purple-outline:hover {
+color: #5d3ea9;
+background-color: #fff;
+border: 1px solid #5d3ea9;
+border-radius: 2.6em;
+padding: 0.5em 1em;
+}
+.alert-danger {
+background-color: rgba(253, 57, 122, .3);
+  border-color: transparent;
+  color: #fd397a;
+  font-size: 0.9em;
+}
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
 /* Table */
 .table {
-color: #646c9a;
-font-size: 0.8em;
+  color: #646c9a;
+  font-size: 0.8em;
 }
 .table-responsive {
-height: 400px;
+  height: 400px;
 }
 .table th {
-border-top: none;
+  border-top: none;
 }
 .table td, .table th {
-vertical-align: initial;
+  vertical-align: initial;
+}
+.table td {
+  padding: .7em .7em 0;
+  /* cursor: pointer; */
+}
+.fa-close.red {
+  font-size: 1.1em;
+  color: #fff;
+  border-radius: 50%;
+  padding: .4em 0.5em;
+  background-color: red;
+}
+/* Order Info, Order Detail*/
+.order-detail {
+  padding: 1em;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9em;
+}
+.order-detail i {
+  margin-right: 1em;
 }
 
 #mapid { height: 880px; }
 
-.deleteOrder {
-  color: red;
-  cursor: pointer;
-}
-
-.viewOrder {
+.cursor-pointer {
   cursor: pointer;
 }
