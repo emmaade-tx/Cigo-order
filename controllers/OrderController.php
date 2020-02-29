@@ -30,7 +30,8 @@ class OrderController extends Controller
                 'actions' => [
                     'delete' => ['POST'],
                     'geocoder' => ['GET'],
-                    'getorders' => ['GET']
+                    'getorders' => ['GET'],
+                    'datatableorders' => ['GET']
                 ],
             ],
         ];
@@ -94,6 +95,55 @@ class OrderController extends Controller
     }
 
     /**
+     * Get orders model.
+     * @return mixed
+     */
+    public function actionDatatableorders() {
+        $orders = Order::find()->all();
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $csrfTokenName = \Yii::$app->request->csrfParam;
+
+        $csrfToken = \Yii::$app->request->getCsrfToken();
+        
+        // $orders[$csrfTokenName] = $csrfToken;
+        // var_dump($orders); die;
+        $data = [];
+        
+        // // return $data;
+        // $data = [];
+        foreach($orders as $order) {
+            $newOrder = [];
+            $newOrder['id'] = $order->id;
+            $newOrder['first_name'] = $order->first_name;
+            $newOrder['last_name'] = $order->last_name;
+            $newOrder['scheduled_date'] = $order->scheduled_date;
+            $newOrder['status_id'] = $order->status_id;
+            $newOrder['country_id'] = $order->country_id;
+            $newOrder['order_type_id'] = $order->order_type_id;
+            $newOrder['lat'] = $order->lat;
+            $newOrder['lng'] = $order->lng;
+            $newOrder['email'] = $order->email;
+            $newOrder['phone_number'] = $order->phone_number;
+            $newOrder['order_value'] = $order->order_value;
+            $newOrder['state'] = $order->state;
+            $newOrder['city'] = $order->city;
+            $newOrder['address'] = $order->address;
+            $newOrder[$csrfTokenName] = $csrfToken;
+            array_push($data, $newOrder);
+        }
+        // var_dump($data); die;
+        return (object) array("data" => $data);
+        // // var_dump($data); die;
+        // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        // return $data;
+        // // if ($orders) {
+        // //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        // //     return $orders;
+        // // }
+    }
+
+    /**
      * Displays a single Order model.
      * @param integer $id
      * @return mixed
@@ -132,7 +182,7 @@ class OrderController extends Controller
         $postData['city'] = $data['city'];
         $postData['zip_code'] = $data['zip_code'];
         $postData['state'] = $data['state'];
-        $postData['country_id'] = (int) $data['order_type_id'];
+        $postData['country_id'] = (int) $data['country_id'];
         $postData['status_id'] = 1;
         $postData['lat'] = $data['lat'];
         $postData['lng'] = $data['lng'];
@@ -140,15 +190,15 @@ class OrderController extends Controller
         $newData = [];
         $newData['_csrf'] = $data['_csrf'];
         $newData['Order'] = $postData;
-        // var_dump($newData); die;
-        // var_dump($model->save());
+        
         if ($model->load($newData) && $model->save()) {
-            // Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-            echo json_encode(["success" => $model]);
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return "success";
             // return ["success" => "Data saved succesfully"];
             // return $this->redirect(['view', 'id' => $model->id]);
         } else {
-            echo ["error" => $model];
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return $model->getErrors();
         }
     }
 
@@ -175,11 +225,12 @@ class OrderController extends Controller
 
 
         if ($model->load($newData) && $model->save()) {
-
-            echo json_encode(["success" => $model]);
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return $model;
             // return $this->redirect(['view', 'id' => $model->id]);
         } else {
-            echo ["error" => $model];
+            // Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return "error";
         }
 
         // return $this->render('update', [
