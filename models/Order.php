@@ -108,4 +108,9 @@ class Order extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Status::className(), ['id' => 'status_id']);
     }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
 }
