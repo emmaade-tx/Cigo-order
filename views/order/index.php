@@ -41,4 +41,5 @@
             </div>
         </div>
     </div>
+    <?= $this->render('_detailModal'); ?>
 </div>
