@@ -33,6 +33,7 @@ use yii\helpers\Html;
   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
   crossorigin=""/>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"/>
 	<?php $this->registerCsrfMetaTags() ?>
     <?php $this->head() ?>
 </head>
@@ -85,7 +86,7 @@ use yii\helpers\Html;
 	</footer>
 </div>
 <?php $this->endBody() ?>
-    <script src="/js/jquery.min.js"></script>
+	<script src="/js/jquery.min.js"></script>
 	<script src="/js/popper.js"></script>
 	<script src="/js/bootstrap.min.js"></script>
 	<script src="/js/main.js"></script>
@@ -95,6 +96,7 @@ use yii\helpers\Html;
   crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
   <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha256-bqVeqGdJ7h/lYPq6xrPv/YGzMEb6dNxlfiTUHSgRCp8=" crossorigin="anonymous"></script>
 <div id="lightContent"></div>  
 </body>
 </html>

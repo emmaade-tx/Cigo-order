@@ -22,7 +22,7 @@
                         <span class="fa fa-check-square-o"></span>
                     </div>
                 </div>
-                <?= $this->render('_view', array('orders' => $orders, 'statuses' => $statuses)); ?>
+                <?= $this->render('_view'); ?>
             </div>
         </div>
         <div class="col-12 col-md-5 col-lg-5">

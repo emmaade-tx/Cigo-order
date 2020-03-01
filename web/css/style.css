@@ -121,7 +121,7 @@ float: right;
 padding-top: 1em;
 }
 .order-select {
-background-color: #000 !important;
+/* background-color: #000 !important; */
 color: #fff !important;
 }
 /* Form CSS*/
@@ -287,4 +287,11 @@ button:focus {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.focusedRow {
+  font-weight: bold;
+  text-shadow: 1px 1px 0px #EEE;
+  color: #111;
+  background-color: #efefef;
 }

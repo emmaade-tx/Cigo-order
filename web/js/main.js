@@ -2,10 +2,10 @@ $(function () {
   'use strict'
   localStorage.removeItem('lng');
   localStorage.removeItem('lat');
+  var marker = [];
   var mymap = L.map('mapid').setView([51.505, -0.09], 13);
   showMap();
-  // showExistingTable();
-  // $('#alert').hide();
+
   $('[data-toggle="offcanvas"]').on('click', function () {
     $('.offcanvas-collapse').toggleClass('open')
   })
@@ -13,6 +13,23 @@ $(function () {
 	  var selText = $(this).text();
 	  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
   });
+
+  //Write your js here
+
+  $('.input-group.date').datepicker({
+    todayBtn: true
+  });
+  // $('.datepicker').datepicker();
+
+
+
+
+
+
+
+
+
+
 
   var existingOrdertable = $('#orderTable').DataTable( {
     'processing': true,
@@ -28,15 +45,31 @@ $(function () {
       { "data": null },
       { "data": null }
     ],
+    "scrollY": "323px",
+    "paging" : false,
+    // "pageLength": 100,
+    // "sDom": 'r<"H"lf><"datatable-scroll"t><"F"ip>',
+    "scrollX": true,
+    "bInfo": false,
+    // "bPaginate": false,
+    "lengthChange": false,
+    "filter": true,
+    "info": false,
+    // "scrollY": true,
+    "scroller": true,
+    // "scrollCollapse": true,
+    "stripeClasses": [],
     "columnDefs": [{
       "targets": -2,
+      "orderable": true,
       "render": function (data, type, row) {        
-        var select = `<select _csrf=${data._csrf} order-id=${data.id} class="form-control order-select"> <option ${data.status_id === 1 ? "selected" : ""} value="1">Pending </option> <option ${data.status_id === 2 ? "selected" : ""} value="2">Assigned </option> <option ${data.status_id === 3 ? "selected" : ""} value="3">On Route </option> <option ${data.status_id === 4 ? "selected" : ""} value="4">Done </option> <option ${data.status_id === 5 ? "selected" : ""} value="5">Cancelled </option> </select>`;           
+        var select = `<select style=${data.status_id === 1 ? 'background-color:#a9a9a9' : data.status_id === 2 ?  'background-color:#2f7ab8' : data.status_id === 3 ? 'background-color:#f0af4d' : data.status_id === 4 ? 'background-color:#5bb95b' : 'background-color:#da5451'} _csrf=${data._csrf} order-id=${data.id} class="form-control order-select"> <option ${data.status_id === 1 ? "selected" : ""} value="1">Pending </option> <option ${data.status_id === 2 ? "selected" : ""} value="2">Assigned </option> <option ${data.status_id === 3 ? "selected" : ""} value="3">On Route </option> <option ${data.status_id === 4 ? "selected" : ""} value="4">Done </option> <option ${data.status_id === 5 ? "selected" : ""} value="5">Cancelled </option> </select>`;           
         return select;
       }
     },
     {
       "targets": -1,
+      "orderable": false,
       "render": function (data, type, row) {        
         var close = `<span ${((data.status_id === 1) || (data.status_id === 2)) ?  "" : "style='opacity: .19;'" }  status-id=${data.status_id} _csrf=${data._csrf} order-id=${data.id} class="fa fa-close red deleteOrder cursor-pointer"></span>`;
         return close;
@@ -65,8 +98,6 @@ $(function () {
     $('#lightContent').removeClass('modal-backdrop fade show')
     $('#detailModal').hide();
   })
-  
-  
 
   $('#orderTable tbody').on('change', '.order-select', function () {
     var orderId = $(this).attr('order-id');
@@ -326,17 +357,7 @@ $(function () {
               text: "Your Order has been saved Succesfully",
               timer: 2000
             })
-            // $( '#myForm' ).each(function(){
-            //   $(this).reset();
-            // });
-            // $("#myForm")[0].reset();
-            // $("myForm").trigger("reset");
             $(':input','#myForm').reset();
-            // $(':input','#myForm')
-            // .not(':button, :submit, :reset, :hidden')
-            // .val('')
-            // .removeAttr('checked')
-            // .removeAttr('selected');
             existingOrdertable.ajax.reload();
           } else {
             Swal.fire({
@@ -349,16 +370,11 @@ $(function () {
           }
           
           showMap();
-          // var obj = jQuery.parseJSON(response);
-          // alert("Order Successfully Submitted");
-        
       },
       error: function (errormessage) {
-
           //do something else
           console.log(errormessage);
           var obj = jQuery.parseJSON(errormessage);
-          // alert("not working");
 
       }
     });
@@ -390,51 +406,49 @@ $(function () {
   }
 
   function showMap(viewOrder) {
-
     var popup = L.popup();
-
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=sk.eyJ1IjoiZGVtbzAwNCIsImEiOiJjazc0cHJncnUwNjh3M3Fua3Q1dnhzc2J3In0.2rcqD0u3Td9cUe2FWKGfrQ', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
-        id: 'mapbox/streets-v11',
-        tileSize: 512,
-        zoomOffset: -1,
-        accessToken: 'sk.eyJ1IjoiZGVtbzAwNCIsImEiOiJjazc0cHJncnUwNjh3M3Fua3Q1dnhzc2J3In0.2rcqD0u3Td9cUe2FWKGfrQ'
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox/streets-v11',
+      tileSize: 512,
+      zoomOffset: -1,
+      accessToken: 'sk.eyJ1IjoiZGVtbzAwNCIsImEiOiJjazc0cHJncnUwNjh3M3Fua3Q1dnhzc2J3In0.2rcqD0u3Td9cUe2FWKGfrQ'
     }).addTo(mymap);
 
     var deliveredIcon = L.icon({
-        iconUrl: '/images/015-delivered.png',
-        iconSize:     [50, 50], // size of the icon
-        iconAnchor:   [51.508, -0.11], // point of the icon which will correspond to marker's location
-        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+      iconUrl: '/images/015-delivered.png',
+      iconSize:     [50, 50], // size of the icon
+      iconAnchor:   [51.508, -0.11], // point of the icon which will correspond to marker's location
+      popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
     });
 
     var onRouteIcon = L.icon({
-        iconUrl: '/images/028-express-delivery.png',
-        iconSize:     [50, 50], // size of the icon
-        iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
-        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+      iconUrl: '/images/028-express-delivery.png',
+      iconSize:     [50, 50], // size of the icon
+      iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
+      popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
     });
 
     var failedDeliveryIcon = L.icon({
-        iconUrl: '/images/016-delivery-failed.png',
-        iconSize:     [50, 50], // size of the icon
-        iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
-        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+      iconUrl: '/images/016-delivery-failed.png',
+      iconSize:     [50, 50], // size of the icon
+      iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
+      popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
     });
 
     var pendingIcon = L.icon({
-        iconUrl: '/images/010-compass.png',
-        iconSize:     [50, 50], // size of the icon
-        iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
-        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+      iconUrl: '/images/010-compass.png',
+      iconSize:     [50, 50], // size of the icon
+      iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
+      popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
     });
 
     var assignedIcon = L.icon({
-        iconUrl: '/images/005-calendar.png',
-        iconSize:     [50, 50], // size of the icon
-        iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
-        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+      iconUrl: '/images/005-calendar.png',
+      iconSize:     [50, 50], // size of the icon
+      iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
+      popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
     });
 
     var statuses = {
@@ -448,7 +462,27 @@ $(function () {
    fetchOrders(function (response) {
     if (response) {
       response.forEach(function(order) {
-        L.marker([order.lat, order.lng], {icon: statuses[order.status_id]}).addTo(mymap);
+        L.marker([order.lat, order.lng], {icon: statuses[order.status_id]}).addTo(mymap).on('click', function(e) {
+            popup
+              .setLatLng(this.getLatLng())
+              .setContent(`Order for ${order.first_name + ' ' + order.last_name}`)
+              .openOn(mymap);
+          $('#orderTable > tbody  > tr').each(function (key, values) {
+            var table = $('#orderTable').DataTable();
+            var data = table.row( this ).data();
+            if (data.id === order.id) {
+
+              var $row = $(table.row(values).node());
+              $('.dataTables_scrollBody').animate({ scrollTop: $row.offset().top }, 2000);
+
+              $(this).addClass("focusedRow")
+            } else {
+              $(this).removeClass("focusedRow")
+            }
+          });
+          // $('#' + RowID).addClass("focusedRow");
+          console.log("order: ",order)
+        });
       })
     }
      if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
@@ -461,28 +495,17 @@ $(function () {
           .setContent(`Order for ${viewOrder.first_name + ' ' + viewOrder.last_name}`)
           .openOn(mymap);
      } else {
-      mymap.setView([response[0].lat, response[0].lng], 13);
+      mymap.setView([response[0].lat, response[0].lng], 5);
      }
    });
 
    if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
-     var marker = L.marker([localStorage.getItem('lat'), localStorage.getItem('lng')]).addTo(mymap);
-    //  console.log(marker);
-     mymap.setView([localStorage.getItem('lat'), localStorage.getItem('lng')], 13);
-     marker.bindPopup("This is your location based on your address.").openPopup();
+    marker = L.marker([localStorage.getItem('lat'), localStorage.getItem('lng')]).addTo(mymap);
+    mymap.setView([localStorage.getItem('lat'), localStorage.getItem('lng')], 13);
+    marker.bindPopup("This is your location based on your address.").openPopup();
+   } else {
+    mymap.removeLayer(marker)
    }
-
-    
-    mymap.on('click', onMapClick);
-
-    function onMapClick(e) {
-      console.log(e)
-        popup
-            .setLatLng(e.latlng)
-            .setContent("You clicked the map at " + e.latlng.toString())
-            .openOn(mymap);
-    }
   }
-  
 })
 

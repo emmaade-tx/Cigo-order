@@ -1,4 +1,4 @@
-<div class="existing-order table-responsive">
+<div class="">
  
     <table id="orderTable" class="display table table-checkable table-hover" style="width:100%">
         <thead>
@@ -6,7 +6,7 @@
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Date</th>
-                <th>&nbsp;</th>
+                <th>Status</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>

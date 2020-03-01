@@ -31,15 +31,24 @@
         </div>
         <div class="form-group">
         <label for="">Scheduled Date <span class="red">*</span></label>
-        <div class="input-group">
-            <div class="input-group-prepend">
+        <!-- <div class="input-group"> -->
+            <!-- <div class="input-group-prepend">
                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
             </div>
-            <input name="scheduled_date"  value="" type="date" class="form-control" placeholder="" required>
-            <div class="invalid-feedback">
-                Valid date is required.
+            <input name="scheduled_date"  value="" type="date" class="form-control" placeholder="" required> -->
+            <div class="input-group date">
+                <div class="input-group-prepend">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
+                <input type="text" class="form-control"><span class="input-group-addon"></span>
+                <div class="invalid-feedback">
+                    Valid date is required.
+                </div>
             </div>
-        </div>
+
+
+            
+        <!-- </div> -->
         </div>
     </div>
     <!--Column 2-->
