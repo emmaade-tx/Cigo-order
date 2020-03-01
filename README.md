@@ -10,7 +10,7 @@
 <br>
 
 </p>
-Cygo order is built with [Yii 2](http://www.yiiframework.com/) PHP framework, Javascript and Jquery.
+Cygo order is built with [Yii 2](http://www.yiiframework.com/) PHP framework, Javascript and Jquery deployed on Heroku.
   
   
 
@@ -74,6 +74,7 @@ http://localhost/order/index
 
 ~~~
 
+The deployed url can be found [here](https://cygo-stage.herokuapp.com/order/index):
 
 ### Database
 
