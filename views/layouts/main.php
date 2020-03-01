@@ -42,7 +42,7 @@ use yii\helpers\Html;
 
     <nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-new-purple">
 		<div class="container">
-		  <a class="navbar-brand mr-auto mr-lg-0" href="#">Cigo Interview</a>
+		  <a class="navbar-brand mr-auto mr-lg-0" href="/order/index">Cigo Interview</a>
 		  <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
 		    <span class="navbar-toggler-icon"></span>
 		  </button>
@@ -50,7 +50,7 @@ use yii\helpers\Html;
 		  <div class="navbar-collapse offcanvas-collapse float-right" id="navbarsExampleDefault">
 		    <ul class="navbar-nav mr-auto">
 		      <li class="nav-item active">
-		        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+		        <a class="nav-link" href="/order/index">Home <span class="sr-only">(current)</span></a>
 		      </li>
 		      <li class="nav-item">
 		        <a class="nav-link" href="#">About</a>

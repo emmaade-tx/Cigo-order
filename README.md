@@ -10,12 +10,9 @@
 <br>
 
 </p>
-Cygo order is built with [Yii 2](http://www.yiiframework.com/) PHP framework, Javascript and Jquery deployed on Heroku.
+Cygo order is built with Yii 2 PHP framework, Javascript and Jquery and deployed on Heroku.  
   
-  
-
 REQUIREMENTS
-
 ------------
 
   
@@ -26,7 +23,6 @@ The minimum requirement to run this application on your local is PHP 5.6.0.
   
 
 INSTALLATION
-
 ------------
 
   
@@ -76,12 +72,15 @@ http://localhost/order/index
 
 The deployed url can be found [here](https://cygo-stage.herokuapp.com/order/index):
 
+
+
+
 ### Database
 
   
-Note that the database used at this point is the database I have set up for testing purpose to help facilitate faster set up, however, if you want to setup your database
+Note that the database used at this point is the database I have set up for testing purpose to help facilitate faster set up. However, if you want to setup your database
 
-Edit the file `config/db.php` with real data, for example:
+Edit the file `config/db.php`  for example:
 
   
 
@@ -91,11 +90,11 @@ return [
 
 'class'  =>  'yii\db\Connection',
 
-'dsn'  =>  'mysql:host=localhost;dbname=yii2basic',
+'dsn'  =>  'mysql:host=localhost;dbname=cygo',
 
 'username'  =>  'root',
 
-'password'  =>  '1234',
+'password'  =>  '',
 
 'charset'  =>  'utf8',
 
