@@ -39,21 +39,15 @@ class OrderController extends Controller
 
     /**
      * Lists all Order models.
-     * @return mixed
+     * @return mixe
+     * 
      */
     public function actionIndex()
     {
-        $orders = Order::find()->all();
         $orderTypes = OrderType::find()->all();
-        $statuses = Status::find()->all();
         $countries = Country::find()->all();
 
-            // var_dump($countries); die;
-        // return $this->render('index', [
-        //     'dataProvider' => $dataProvider,
-        // ]);
-
-        return $this->render('index', ['orderTypes' => $orderTypes, 'countries' => $countries, 'orders' => $orders, 'statuses' => $statuses]);
+        return $this->render('index', ['orderTypes' => $orderTypes, 'countries' => $countries]);
     }
 
     /**
@@ -70,7 +64,7 @@ class OrderController extends Controller
         try {
             $fullAddress = $address . " " . $city . " " . $state . " " . $country;
             $geocoder = new \Geocodio\Geocodio();
-            $geocoder->setApiKey('43d28b79857ee554d2b779518e57242ebee75d9');
+            $geocoder->setApiKey(\Yii::$app->params['geocodeApiKey']);
             $response = $geocoder->geocode($fullAddress);
             
             echo json_encode($response->results[0]->location);
@@ -79,7 +73,6 @@ class OrderController extends Controller
           catch(\Exception $e) {
               echo json_encode($e->getMessage());
           }
-        
     }
 
     /**
@@ -90,6 +83,7 @@ class OrderController extends Controller
         $orders = Order::find()->all();
         if ($orders) {
             \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
             return $orders;
         }
     }
@@ -101,17 +95,9 @@ class OrderController extends Controller
     public function actionDatatableorders() {
         $orders = Order::find()->all();
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
         $csrfTokenName = \Yii::$app->request->csrfParam;
-
         $csrfToken = \Yii::$app->request->getCsrfToken();
-        
-        // $orders[$csrfTokenName] = $csrfToken;
-        // var_dump($orders); die;
         $data = [];
-        
-        // // return $data;
-        // $data = [];
         foreach($orders as $order) {
             $newOrder = [];
             $newOrder['id'] = $order->id;
@@ -132,15 +118,8 @@ class OrderController extends Controller
             $newOrder[$csrfTokenName] = $csrfToken;
             array_push($data, $newOrder);
         }
-        // var_dump($data); die;
+
         return (object) array("data" => $data);
-        // // var_dump($data); die;
-        // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        // return $data;
-        // // if ($orders) {
-        // //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        // //     return $orders;
-        // // }
     }
 
     /**
@@ -154,9 +133,9 @@ class OrderController extends Controller
         $order = $this->findModel($id);
         if ($order) {
             \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
             return $order;
         }
-        
     }
 
     /**
@@ -167,7 +146,6 @@ class OrderController extends Controller
     public function actionCreate()
     {
         $model = new Order();
-
         $data = Yii::$app->request->post();
         $postData = [];
 
@@ -193,11 +171,11 @@ class OrderController extends Controller
         
         if ($model->load($newData) && $model->save()) {
             Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
             return "success";
-            // return ["success" => "Data saved succesfully"];
-            // return $this->redirect(['view', 'id' => $model->id]);
         } else {
             Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
             return $model->getErrors();
         }
     }
@@ -212,30 +190,20 @@ class OrderController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        // var_dump($model); die;
-        // var_dump(Yii::$app->request->post()); die;
         $data = Yii::$app->request->post();
-        // var_dump($data); die;
         $postData = [];
         $postData['status_id'] = $data['statusId'];;
-
         $newData = [];
         $newData['_csrf'] = $data['_csrf'];
         $newData['Order'] = $postData;
 
-
         if ($model->load($newData) && $model->save()) {
             Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
             return $model;
-            // return $this->redirect(['view', 'id' => $model->id]);
         } else {
-            // Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
             return "error";
         }
-
-        // return $this->render('update', [
-        //     'model' => $model,
-        // ]);
     }
 
     /**
@@ -254,8 +222,6 @@ class OrderController extends Controller
         } else {
             echo false;
         }
-
-        // return $this->redirect(['index']);
     }
 
     /**
