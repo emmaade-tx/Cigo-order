@@ -66,7 +66,7 @@ class OrderController extends Controller
             $geocoder = new \Geocodio\Geocodio();
             $geocoder->setApiKey(\Yii::$app->params['geocodeApiKey']);
             $response = $geocoder->geocode($fullAddress);
-            
+
             echo json_encode($response->results[0]->location);
           }
           //catch exception

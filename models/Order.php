@@ -46,8 +46,8 @@ class Order extends \yii\db\ActiveRecord
         return [
             [['first_name', 'phone_number', 'order_type_id', 'scheduled_date', 'address', 'city', 'state', 'country_id', 'lat', 'lng'], 'required'],
             [['order_type_id', 'status_id', 'country_id'], 'integer'],
-            [['first_name', 'last_name', 'email'], 'string', 'max' => 80],
-            [['phone_number', 'order_value', 'scheduled_date', 'address', 'city', 'state', 'zip_code', 'lat', 'lng'], 'string', 'max' => 45],
+            [['first_name', 'last_name', 'email', 'address'], 'string', 'max' => 80],
+            [['phone_number', 'order_value', 'scheduled_date', 'city', 'state', 'zip_code', 'lat', 'lng'], 'string', 'max' => 45],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'id']],
             [['order_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrderType::className(), 'targetAttribute' => ['order_type_id' => 'id']],
             [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => Status::className(), 'targetAttribute' => ['status_id' => 'id']],
