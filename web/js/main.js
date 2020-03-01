@@ -14,8 +14,6 @@ $(function () {
 	  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
   });
 
-  //Write your js here
-
   $('.input-group.date').datepicker({
     todayBtn: true
   });
