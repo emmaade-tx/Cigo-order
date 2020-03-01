@@ -121,19 +121,15 @@ float: right;
 padding-top: 1em;
 }
 .order-select {
-/* background-color: #000 !important; */
-color: #fff !important;
+  color: #fff !important;
 }
 /* Form CSS*/
-.form-control:active, .form-control:focus {
-border-color: #473080;
-box-shadow: none; /*0 0 0 0.1rem rgba(117, 117, 117, 0.81)*/
-}
-.form-group label {
+
+label {
 font-size: 0.8em;
 }
 .form-control {
-display: block;
+  display: block;
   width: 100%;
   height: calc(1.5em + 1.3rem - 4px);
   padding: .65rem 1rem;
@@ -149,6 +145,10 @@ display: block;
   transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+}
+.form-control:active, .form-control:focus {
+  border-color: #473080;
+  box-shadow: none; /*0 0 0 0.1rem rgba(117, 117, 117, 0.81)*/
 }
 .form-control::-webkit-input-placeholder {
 color: #646c9a;
@@ -190,6 +190,16 @@ font-size: 0.8em;
 background-color: #efefef;
 border: 1px solid #ced4da; 
 }
+
+/* Footer */
+.footer-text1 {
+  text-align: left;
+}
+
+.footer-text2 {
+  text-align: right;
+}
+
 /* Buttons */
 .btn:active, .btn:focus {
 box-shadow: none !important;
@@ -248,6 +258,9 @@ button:focus {
   outline: none !important;
   box-shadow: none !important;
 }
+.btn.disabled, .btn:disabled {
+  opacity: .3;
+}
 /* Table */
 .table {
   color: #646c9a;
@@ -273,6 +286,46 @@ button:focus {
   padding: .4em 0.5em;
   background-color: red;
 }
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.focusedRow {
+  font-weight: bold;
+  color: #111;
+  background-color: #e4e4e4 !important;
+}
+.sorting_1 {
+  background: none !important;
+}
+
+input[type="search"] {
+  height: calc(1.5em + 0.4rem);
+  padding: 0.2rem;
+  font-size: 0.8rem;
+  color: #646c9a;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #e2e5ec;
+  border-radius: 4px;
+  outline: none;
+}
+
+input[type="search"]:focus {
+  outline: none;
+  box-shadow: none;
+}
+.input-group.date input{
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+}
+table.dataTable thead th, table.dataTable thead td {
+  border-bottom: 1px solid #ddd !important;
+}
+.dataTables_wrapper.no-footer .dataTables_scrollBody {
+  border-bottom: none !important;
+}
+
 /* Order Info, Order Detail*/
 .order-detail {
   padding: 1em;
@@ -283,15 +336,47 @@ button:focus {
   margin-right: 1em;
 }
 
-#mapid { height: 880px; }
-
-.cursor-pointer {
-  cursor: pointer;
+/* Map */
+#mapid {
+  height: 889px; 
 }
 
-.focusedRow {
-  font-weight: bold;
-  text-shadow: 1px 1px 0px #EEE;
-  color: #111;
-  background-color: #efefef;
+/* Datepicker */
+.datepicker {
+  color: #646c9a;
+  font-family: 'Varela Round', sans-serif;
+  font-size: 0.9em;
+  
+}
+.datepicker td, .datepicker th {
+  padding: 0.4em;
+}
+@media screen and (min-width: 320px) {
+  .order-select {
+    width: 7em;
+    padding: 5px 0 5px 5px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .btn {
+    padding: 0.3em;
+    font-size: 0.8em;
+  }
+  #mapid {  
+    height: 440px; 
+  }
+  .order-select {
+    width: 7em;
+    padding: 5px 0 5px 5px;
+  }
+  .footer-text1, .footer-text2 {
+    text-align: center;
+  }
+}
+
+@media screen and (min-width: 320px) and (max-width: 600px) {
+  .footer-text1, .footer-text2 {
+    text-align: center;
+  }
 }
