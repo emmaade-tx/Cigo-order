@@ -19,17 +19,13 @@ $(function () {
   $('.input-group.date').datepicker({
     todayBtn: true
   });
-  // $('.datepicker').datepicker();
 
-
-
-
-
-
-
-
-
-
+  $.fn.dataTable.ext.order['dom-select'] = function  ( settings, col )
+  {
+    return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+      return $('select', td).val();
+    });
+  }
 
   var existingOrdertable = $('#orderTable').DataTable( {
     'processing': true,
@@ -47,20 +43,16 @@ $(function () {
     ],
     "scrollY": "323px",
     "paging" : false,
-    // "pageLength": 100,
-    // "sDom": 'r<"H"lf><"datatable-scroll"t><"F"ip>',
     "scrollX": true,
     "bInfo": false,
-    // "bPaginate": false,
     "lengthChange": false,
     "filter": true,
     "info": false,
-    // "scrollY": true,
     "scroller": true,
-    // "scrollCollapse": true,
     "stripeClasses": [],
     "columnDefs": [{
       "targets": -2,
+      "orderDataType": "dom-select",
       "orderable": true,
       "render": function (data, type, row) {        
         var select = `<select style=${data.status_id === 1 ? 'background-color:#a9a9a9' : data.status_id === 2 ?  'background-color:#2f7ab8' : data.status_id === 3 ? 'background-color:#f0af4d' : data.status_id === 4 ? 'background-color:#5bb95b' : 'background-color:#da5451'} _csrf=${data._csrf} order-id=${data.id} class="form-control order-select"> <option ${data.status_id === 1 ? "selected" : ""} value="1">Pending </option> <option ${data.status_id === 2 ? "selected" : ""} value="2">Assigned </option> <option ${data.status_id === 3 ? "selected" : ""} value="3">On Route </option> <option ${data.status_id === 4 ? "selected" : ""} value="4">Done </option> <option ${data.status_id === 5 ? "selected" : ""} value="5">Cancelled </option> </select>`;           
@@ -199,14 +191,13 @@ $(function () {
   });
 
   function getGeoCodeinfo(city, state, country, address) {
+    if (city && state && country && address) {
+
       $.ajax({
         type: "GET",
         url: `/order/geocoder?city=${city}&state=${state}&address=${address}&country=${country}`,
-        // contentType: "application/json; charset=utf-8",
-        // dataType: "json",
         success: function (response) {
           //do something
-            
             var obj = jQuery.parseJSON (response);
             console.log(obj);
             if (obj === "Could not geocode address. Postal code or city required.") {
@@ -225,8 +216,6 @@ $(function () {
               localStorage.setItem('lat', obj.lat);
               showMap();
             }
-            
-          
         },
         error: function (errormessage) {
 
@@ -236,9 +225,11 @@ $(function () {
 
         }
       });
+      
+    }
   }
 
-  $('#reset').on('click', function() {
+  $('#formReset').on('click', function() {
     localStorage.removeItem('lng')
     localStorage.removeItem('lat')
     showMap()
@@ -285,6 +276,21 @@ $(function () {
     $('#orderStatus').text(orderStatus)
   }
 
+  $("#previewLocation").on('click', function() {
+    if (localStorage.getItem('lat') && localStorage.getItem('lng')) {
+      showMap();
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Info',
+        showConfirmButton: false,
+        text: "Please fill the address field to view your location",
+        timer: 2000
+      })
+    }
+   
+  })
+
   $("#address").on('change', function() {
       var address = $(this).val();
       var country = $('#country option:selected').text();
@@ -312,7 +318,7 @@ $(function () {
     var address = $('#address').val();
     var country = $('#country option:selected').text();
     if (city && state && country && address) {
-      getGeoCodeinfo(city, state, country, address);
+      // getGeoCodeinfo(city, state, country, address);
     }
   });
 
@@ -333,12 +339,22 @@ $(function () {
         data[field.name] = field.value;
     });
     console.log(data);
+    // $('#myForm').bootstrapValidator('resetForm', true);
+    // $('#myForm').trigger("reset");
+    // return;
     if (!data.first_name || !data.order_type_id || !data.phone_number || !data.scheduled_date || !data.city || !data.state || !data.country_id) {
       return;
     }
+    if (data.phone_number.length < 11 || data.phone_number.length > 13) {
+      $('#phoneNumber').text("Phone number must be between 11 and 13 characters")
+      $('#phoneNumber').addClass("d-block")
+      return;
+    } else {
+      $('#phoneNumber').text("Valid phone number is required.")
+      $('#phoneNumber').removeClass("d-block")
+    }
     data['lng'] = localStorage.getItem('lng');
     data['lat'] = localStorage.getItem('lat');
-    console.log(data);
     
     $.ajax({
       type: "POST",
@@ -349,7 +365,10 @@ $(function () {
           console.log(response);
           localStorage.removeItem('lng');
           localStorage.removeItem('lat');
+          
           if (response === "success") {
+            // $('#myForm').reset();
+            existingOrdertable.ajax.reload();
             Swal.fire({
               icon: 'success',
               title: 'Success',
@@ -357,8 +376,10 @@ $(function () {
               text: "Your Order has been saved Succesfully",
               timer: 2000
             })
-            $(':input','#myForm').reset();
-            existingOrdertable.ajax.reload();
+            var form = $('#myForm')[0];
+            $(form).removeClass('was-validated');
+            form.reset();
+            $("#submitButton").attr("disabled", true);
           } else {
             Swal.fire({
               icon: 'error',
@@ -438,7 +459,7 @@ $(function () {
     });
 
     var pendingIcon = L.icon({
-      iconUrl: '/images/010-compass.png',
+      iconUrl: '/images/057-stopwatch.png',
       iconSize:     [50, 50], // size of the icon
       iconAnchor:   [51.608, -0.51], // point of the icon which will correspond to marker's location
       popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
@@ -459,29 +480,32 @@ $(function () {
       5: failedDeliveryIcon
     }
 
+    var orderStatuses = {
+      1: "Pending",
+      2: "Assigned",
+      3: "On Route",
+      4: "Delivered",
+      5: "Cancelled"
+    }
+
    fetchOrders(function (response) {
     if (response) {
       response.forEach(function(order) {
         L.marker([order.lat, order.lng], {icon: statuses[order.status_id]}).addTo(mymap).on('click', function(e) {
             popup
               .setLatLng(this.getLatLng())
-              .setContent(`Order for ${order.first_name + ' ' + order.last_name}`)
+              .setContent(`Order for ${order.first_name + ' ' + order.last_name} (${orderStatuses[order.status_id]})`)
               .openOn(mymap);
           $('#orderTable > tbody  > tr').each(function (key, values) {
             var table = $('#orderTable').DataTable();
             var data = table.row( this ).data();
             if (data.id === order.id) {
-
-              var $row = $(table.row(values).node());
-              $('.dataTables_scrollBody').animate({ scrollTop: $row.offset().top }, 2000);
-
+              $('.dataTables_scrollBody').scrollTo(values);
               $(this).addClass("focusedRow")
             } else {
               $(this).removeClass("focusedRow")
             }
           });
-          // $('#' + RowID).addClass("focusedRow");
-          console.log("order: ",order)
         });
       })
     }
@@ -492,10 +516,12 @@ $(function () {
       var latlng = {lat: viewOrder.lat, lng: viewOrder.lng}
       popup
           .setLatLng(latlng)
-          .setContent(`Order for ${viewOrder.first_name + ' ' + viewOrder.last_name}`)
+          .setContent(`Order for ${viewOrder.first_name + ' ' + viewOrder.last_name}  (${orderStatuses[viewOrder.status_id]})`)
           .openOn(mymap);
-     } else {
+     } else if (response) {
       mymap.setView([response[0].lat, response[0].lng], 5);
+     } else {
+        mymap.setView([51.505, -0.09], 13);
      }
    });
 
