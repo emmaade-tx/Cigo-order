@@ -75,10 +75,10 @@ use yii\helpers\Html;
     <footer class="footer mt-auto py-3">
 	  <div class="container">
 	  	<div class="row">
-	  		<div class="col-12 col-md-6 col-lg-6">
+	  		<div class="col-12 col-sm-6 col-md-6 col-lg-6 footer-text1">
 	    		<small>&copy; Ademola Raimi 2020</small>
 	    	</div>
-	    	<div class="col-12 col-md-6 col-lg-6 text-right">
+	    	<div class="col-12 col-sm-6 col-md-6 col-lg-6 footer-text2">
 			    <small>Powered by Yii Framework</small>
 			</div>
 	  	</div>
@@ -97,6 +97,7 @@ use yii\helpers\Html;
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
   <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha256-bqVeqGdJ7h/lYPq6xrPv/YGzMEb6dNxlfiTUHSgRCp8=" crossorigin="anonymous"></script>
+  <script src="//cdn.jsdelivr.net/jquery.scrollto/2.1.2/jquery.scrollTo.min.js"></script>
 <div id="lightContent"></div>  
 </body>
 </html>
