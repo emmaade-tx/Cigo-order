@@ -21,7 +21,7 @@ class m200227_184324_create_orders_table extends Migration
             'order_type_id' => $this->integer()->unsigned()->notNull(),
             'order_value' =>$this->string(45),
             'scheduled_date' => $this->string(45)->notNull(),
-            'address' => $this->string(45)->notNull(),
+            'address' => $this->string(80)->notNull(),
             'city' => $this->string(45)->notNull(),
             'state' => $this->string(45)->notNull(),
             'status_id' => $this->integer()->unsigned()->notNull(),
