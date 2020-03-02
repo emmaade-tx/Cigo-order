@@ -65,7 +65,7 @@ $(function () {
       "targets": -1,
       "orderable": false,
       "render": function (data, type, row) {        
-        var close = `<span ${((data.status_id === 1) || (data.status_id === 2)) ?  "" : "style='opacity: .19;'" }  status-id=${data.status_id} _csrf=${data._csrf} order-id=${data.id} class="fa fa-close red deleteOrder cursor-pointer"></span>`;
+        var close = `<span ${((data.status_id === 1) || (data.status_id === 2)) ?  "style='cursor: pointer;'" : "style='opacity: .19;'" }  status-id=${data.status_id} _csrf=${data._csrf} order-id=${data.id}  class="fa fa-close red deleteOrder"></span>`;
         return close;
       }
     },
