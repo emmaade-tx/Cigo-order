@@ -14,8 +14,12 @@ $(function () {
 	  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
   });
 
+  var date = new Date();
+  date.setDate(date.getDate()-1);
+
   $('.input-group.date').datepicker({
-    todayBtn: true
+    todayBtn: false,
+    startDate: date
   });
 
   $.fn.dataTable.ext.order['dom-select'] = function  ( settings, col )
@@ -78,7 +82,6 @@ $(function () {
     $('#detailModal').show();
     $('.bg-light').addClass('modal-open');
     $('#lightContent').addClass('modal-backdrop fade show')
-    console.log(data);
       showMap(data);
       showOrderDetail(data);
   });
@@ -162,7 +165,6 @@ $(function () {
             data: data,
             success: function (response) {
                //do something
-                console.log(response);
                 showMap();
                 Swal.fire(
                   'Deleted!',
@@ -177,9 +179,7 @@ $(function () {
       
                 //do something else
                 console.log(errormessage);
-                var obj = jQuery.parseJSON(errormessage);
-                // alert("not working");
-      
+                var obj = jQuery.parseJSON(errormessage);      
             }
           });
         }
@@ -189,15 +189,23 @@ $(function () {
   });
 
   function getGeoCodeinfo(city, state, country, address) {
+    if (country === "Nigeria" || country === "Mexico") {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Info',
+        showConfirmButton: false,
+        text: `We do not support ${country} at the moment, please select another country`,
+        timer: 4000
+      })
+      return;
+    }
     if (city && state && country && address) {
-
       $.ajax({
         type: "GET",
         url: `/order/geocoder?city=${city}&state=${state}&address=${address}&country=${country}`,
         success: function (response) {
           //do something
             var obj = jQuery.parseJSON (response);
-            console.log(obj);
             if (obj === "Could not geocode address. Postal code or city required.") {
               // alert("We could not get your location, please give a right address")
               Swal.fire({
@@ -219,8 +227,6 @@ $(function () {
 
             //do something else
             console.log(errormessage);
-            // alert("not working");
-
         }
       });
       
@@ -282,7 +288,7 @@ $(function () {
         icon: 'warning',
         title: 'Info',
         showConfirmButton: false,
-        text: "Please fill the address field to view your location",
+        text: "Location not found",
         timer: 2000
       })
     }
@@ -336,10 +342,6 @@ $(function () {
     $.each($(this).serializeArray(), function(i, field) {
         data[field.name] = field.value;
     });
-    console.log(data);
-    // $('#myForm').bootstrapValidator('resetForm', true);
-    // $('#myForm').trigger("reset");
-    // return;
     if (!data.first_name || !data.order_type_id || !data.phone_number || !data.scheduled_date || !data.city || !data.state || !data.country_id) {
       return;
     }
@@ -360,7 +362,6 @@ $(function () {
       data: data,
       success: function (response) {
          //do something
-          console.log(response);
           localStorage.removeItem('lng');
           localStorage.removeItem('lat');
           
@@ -387,14 +388,20 @@ $(function () {
               timer: 2000
             })
           }
-          
+
           showMap();
       },
       error: function (errormessage) {
           //do something else
           console.log(errormessage);
           var obj = jQuery.parseJSON(errormessage);
-
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            showConfirmButton: false,
+            text: "Something went wrong, please try again later",
+            timer: 2000
+          })
       }
     });
   });
@@ -403,23 +410,13 @@ $(function () {
     $.ajax({
       type: "GET",
       url: "/order/getorders",
-      // contentType: "application/json; charset=utf-8",
-      // dataType: "json",
       success: function (response) {
         //do something
-          
-          // var obj = jQuery.parseJSON (response);
-          // console.log(response);
-
           return callback(response);
-        
       },
       error: function (errormessage) {
-
           //do something else
           console.log(errormessage);
-          // alert("not working");
-
       }
     });
   }
