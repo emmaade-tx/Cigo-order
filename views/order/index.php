@@ -1,5 +1,5 @@
 
-<div class="mb-4 mt-lg-5">
+<div class="mb-4 mt-lg-4">
     <div class="row">
         <div class="col-12 col-md-7 col-lg-7">
             <div class="my-4 p-3 bg-white rounded shadow-sm">
@@ -13,7 +13,7 @@
                 </div>
                 <?= $this->render('_form', array('countries' => $countries, 'orderTypes' => $orderTypes)); ?>
             </div>
-            <div class="my-4 p-3 bg-white rounded shadow-sm">
+            <div class="my-1 p-3 bg-white rounded shadow-sm">
                 <div class="order-header border-bottom pb-2 mb-0">
                     <div class="order-title">
                         <h6>Existing Order</h6>
