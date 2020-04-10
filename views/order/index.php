@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="media text-muted pt-3" id="mapid">
-                    
+                
                 </div>
             </div>
         </div>
